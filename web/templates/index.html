@@ -1,11 +1,517 @@
 {% extends 'layout.html' %} {% block style %}
+<link href="{{url_for('static',filename='css/component.css')}}" rel="stylesheet">
 <style>
+.box {
+    background-color: rgba(200, 200, 200, 0.15);
+    padding: 20px 22px;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 20px;
+    text-align: center;
+}
 
+.box h5 {
+    color: #999;
+    text-align: center;
+}
+
+#chat textarea {
+    resize: none;
+    color: #fff;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    font-size: 13px;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 15px;
+    margin-top: 3px;
+    border-radius: 8px;
+}
+
+#chat #send {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    font-size: 25px;
+    position: absolute;
+    bottom: 22px;
+    right: 25px;
+    color: #666;
+    transition: color .3s;
+    -o-transition: color .3s;
+    -ms-transition: color .3s;
+    -moz-transition: color .3s;
+    -webkit-transition: color .3s;
+    padding: 10px;
+}
+
+#chat #send:hover {
+    color: #fff;
+}
+
+#history {
+    height: 550px;
+    overflow-y: scroll;
+}
+
+#mode {
+    height: 330px;
+}
+
+#feedback {
+    height: 200px;
+    position: relative;
+}
+
+#feedback label {
+    font-size: 12px;
+    color: #666;
+    padding-left: 34px;
+}
+
+#feedback #r1:checked + label {
+    color: rgba(84, 148, 191, 1);
+}
+
+#feedback #r2:checked + label {
+    color: rgba(243, 230, 162, 1);
+}
+
+#feedback #r3:checked + label {
+    color: rgba(230, 157, 135, 1);
+}
+
+#feedback .ac-custom {
+    padding: 0;
+    position: relative;
+    left: -10px;
+    text-align: center;
+}
+
+.ac-custom input[type="checkbox"],
+.ac-custom input[type="radio"],
+.ac-custom label::before {
+    width: 10px;
+    height: 10px;
+    left: 7px;
+    top: 13px;
+    border: 2px solid rgba(240, 240, 240, 0.5);
+}
+
+.ac-custom svg {
+    width: 24px;
+    height: 24px;
+    left: 50%;
+    margin-left: -52px;
+    top: 12px;
+}
+
+.ac-custom li {
+    padding: 5px;
+}
+
+#mode button {
+    outline: none;
+    color: #eee;
+    border: 1px solid rgba(240, 240, 240, 0.9);
+    background-color: transparent;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 12px;
+    transition: color, background-color .3s;
+    -o-transition: color, background-color .3s;
+    -ms-transition: color, background-color .3s;
+    -moz-transition: color, background-color .3s;
+    -webkit-transition: color, background-color .3s;
+}
+
+#mode button:hover,
+#mode button.active {
+    background-color: rgba(240, 240, 240, 0.9);
+    color: #222;
+}
+
+#mode #auto {
+    position: relative;
+    left: 3px;
+    border-right: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+#mode #manual {
+    position: relative;
+    right: 3px;
+    border-left: none;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+#mode .submode {
+    color: #666;
+    padding: 10px 20px;
+    margin: 0 10px;
+    border-bottom: 1px solid #666;
+    transition: color .5s;
+    -o-transition: color .5s;
+    -ms-transition: color .5s;
+    -moz-transition: color .5s;
+    -webkit-transition: color .5s;
+}
+
+#mode .submode:last-child {
+    border-bottom: none;
+}
+
+#mode #mode1:hover {
+    cursor: pointer;
+    color: rgba(84, 148, 191, 1);
+}
+
+#mode #mode1.active {
+    color: rgba(84, 148, 191, 1);
+}
+
+#mode #mode2:hover {
+    cursor: pointer;
+    color: rgba(243, 230, 162, 1);
+}
+
+#mode #mode2.active {
+    color: rgba(243, 230, 162, 1);
+}
+
+#mode #mode3:hover {
+    cursor: pointer;
+    color: rgba(230, 157, 135, 1);
+}
+
+#mode #mode3.active {
+    color: rgba(230, 157, 135, 1);
+}
+
+#history .response {
+    margin-top: 4px;
+    margin-bottom: 4px;
+    width: 80%;
+    margin-right: 19%;
+    color: #fff;
+    text-align: left;
+    color: rgba(84, 148, 191, 1);
+}
+#history .response img {
+    width: 45px;
+    margin-top: 5px;
+}
+
+#history .post {
+    margin-top: 4px;
+    margin-bottom: 4px;
+    width: 80%;
+    margin-left: 19%;
+    text-align: right;
+    color: rgba(230, 157, 135, 1);
+}
 </style>
 {% endblock %} {% block body %}
-
+<div class="row">
+    <div class="col-md-3 col-lg-3">
+        <div id="history" class="box">
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-6">
+        <div id="bot" class="box" style="padding-bottom:10px;">
+            <img src="{{url_for('static',filename='img/bot.png')}}" alt="" style="height:280px;margin:5px auto 15px auto;max-width:90%;position:relative;">
+        </div>
+        <div id="chat" class="box" style="height:200px;position:relative;">
+            <textarea cols="30" rows="7" class="form-control" placeholder="输入聊天内容，按下Enter或点击飞机以发送"></textarea>
+            <button id="send"><span class="fa fa-fw fa-paper-plane"></span></button>
+        </div>
+    </div>
+    <div class="col-md-3 col-lg-3">
+        <div id="mode" class="box">
+            <h5 style="margin-top:16px;margin-bottom:40px;">聊天模式选择</h5>
+            <div style="margin-bottom:40px;">
+                <button id="auto" class="active">自动检测</button>
+                <button id="manual">手动指定</button>
+            </div>
+            <div>
+                <div class="submode active" id="mode1">随便唠唠</div>
+                <div class="submode" id="mode2">法律咨询</div>
+                <div class="submode" id="mode3">专业问答</div>
+            </div>
+        </div>
+        <div id="feedback" class="box">
+            <h5 style="margin-top:16px;margin-bottom:27px;">请为当前回复提供反馈</h5>
+            <form class="ac-custom ac-radio ac-circle" autocomplete="off">
+                <ul>
+                    <li>
+                        <input id="r1" name="feedback" type="radio">
+                        <label for="r1">回复恰到好处</label>
+                    </li>
+                    <li>
+                        <input id="r2" name="feedback" type="radio">
+                        <label for="r2">勉强说得过去</label>
+                    </li>
+                    <li>
+                        <input id="r3" name="feedback" type="radio">
+                        <label for="r3">牛头不对马嘴</label>
+                    </li>
+                </ul>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="{{url_for('static',filename='js/svgcheckbx.js')}}"></script>
 <script>
 $(document).ready(function() {
+    var mode = 0;
+    var submode = 0;
+    var current_post = '';
+    var current_response = '';
+    var chatting = false;
+    var ranked = true;
+
+    $('#feedback input').click(function(event) {
+        if (!ranked) {
+            ranked = true;
+            var tmp = 0;
+            if ($("#feedback #r1").is(':checked')) {
+                // good
+                tmp = 1;
+            }
+            if ($("#feedback #r2").is(':checked')) {
+                // normal
+                tmp = 0;
+            }
+            if ($("#feedback #r3").is(':checked')) {
+                // bad
+                tmp = -1;
+            }
+            $.ajax({
+                url: '{{url_for("rank")}}',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    post: current_post,
+                    response: current_response,
+                    rank: tmp
+                },
+            })
+            .done(function(data) {
+            })
+            .fail(function() {
+            })
+            .always(function() {
+            });
+            
+        }
+        else {
+            event.preventDefault();
+        }
+    });
+
+    function send() {
+        var tmp = $('#chat textarea').val();
+
+        $('#feedback ul li svg path').remove();
+        $("#feedback #r1").removeAttr("checked");
+        $("#feedback #r2").removeAttr("checked");
+        $("#feedback #r3").removeAttr("checked");
+
+        if (tmp != '') {
+            current_post = tmp;
+
+            $('#chat textarea').val('');
+            var $post = $('<div class="post" style="display:none;opacity:0;position:relative;top:10px;">' + tmp + '</div>');
+
+            $('#history').append($post);
+
+            var h1 = 0;
+            $('#history .post').each(function(index, el) {
+                h1 += $(this).height();
+            });
+            $('#history .response').each(function(index, el) {
+                h1 += $(this).height();
+            });
+            h1 += 160;
+            var h2 = $('#history').height();
+
+            if (h1 > h2) {
+                $('#history').animate({
+                    scrollTop: h1 - h2,
+                }, 400);
+            }
+
+            $post.show().animate({
+                top: 0,
+                opacity: 1
+            }, 400);
+
+            if (mode == 0) {
+                $.ajax({
+                        url: "{{url_for('mode')}}",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            post: current_post
+                        },
+                    })
+                    .done(function(data) {
+                        console.log(data);
+                        $('#mode .submode').removeClass('active');
+                        if (data['weight'] < 0.05) {
+                            submode = 0;
+                            $('#mode #mode1').addClass('active');
+                        } else if (!data['query']) {
+                            submode = 1;
+                            $('#mode #mode2').addClass('active');
+                        } else {
+                            submode = 2;
+                            $('#mode #mode3').addClass('active');
+                        }
+                        chat();
+                    })
+                    .fail(function() {})
+                    .always(function() {});
+            }
+            else {
+                chat();
+            }
+        }
+    }
+
+    function chat() {
+        $.ajax({
+            url: "{{url_for('chat')}}",
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                post: current_post,
+                submode: submode
+            },
+        })
+        .done(function(data) {
+            ranked = false;
+
+            // var tmp = Math.random();
+            // if (tmp < 0.25) {
+            //     $('#bot img').animate({
+            //         top: 5
+            //     }, 500).animate({
+            //         top: 0
+            //     }, 500);
+            // }
+            // else if (tmp < 0.5) {
+            //     $('#bot img').animate({
+            //         bottom: 5
+            //     }, 500).animate({
+            //         bottom: 0
+            //     }, 500);
+            // }
+            // else if (tmp < 0.75) {
+            //     $('#bot img').animate({
+            //         left: 5
+            //     }, 500).animate({
+            //         left: 0
+            //     }, 500);
+            // }
+            // else {
+            //     $('#bot img').animate({
+            //         right: 5
+            //     }, 500).animate({
+            //         right: 0
+            //     }, 500);
+            // }
+
+            if (mode == 0) {
+                $('#mode .submode').removeClass('active');
+                if (data['submode'] == 0) {
+                    submode = 0;
+                    $('#mode #mode1').addClass('active');
+                } else if (data['submode'] == 1) {
+                    submode = 1;
+                    $('#mode #mode2').addClass('active');
+                } else {
+                    submode = 2;
+                    $('#mode #mode3').addClass('active');
+                }
+            }
+
+            current_response = data['response'];
+
+            var $response = $('<div class="response" style="display:none;opacity:0;position:relative;top:10px;">' + data['response'] + '</div>');
+
+            $('#history').append($response);
+
+            var h1 = 0;
+            $('#history .post').each(function(index, el) {
+                h1 += $(this).height();
+            });
+            $('#history .response').each(function(index, el) {
+                h1 += $(this).height();
+            });
+            h1 += 160;
+            var h2 = $('#history').height();
+
+            if (h1 > h2) {
+                $('#history').animate({
+                    scrollTop: h1 - h2,
+                }, 400);
+            }
+
+            $response.show().animate({
+                top: 0,
+                opacity: 1
+            }, 400, function(){
+                chatting = false;
+            });  
+        })
+        .fail(function() {})
+        .always(function() {});
+    }
+
+    $('#chat textarea').keyup(function(event) {
+        if (event.key == 'Enter' && !chatting) {
+            chatting = true;
+            send();
+        }
+    });
+
+    $('#send').click(function(event) {
+        if (!chatting) {
+            chatting = true;
+            send();
+        }
+    });
+
+    $('#mode #auto').click(function(event) {
+        $('#mode #manual').removeClass('active');
+        $('#mode #auto').addClass('active');
+        mode = 0;
+    });
+
+    $('#mode #manual').click(function(event) {
+        $('#mode #auto').removeClass('active');
+        $('#mode #manual').addClass('active');
+        mode = 1;
+    });
+
+    $('#mode .submode').click(function(event) {
+        if (mode == 1) {
+            $('#mode .submode').removeClass('active');
+            $(this).addClass('active');
+            if ($(this).attr('id') == 'mode1') {
+                submode = 0;
+            }
+            if ($(this).attr('id') == 'mode2') {
+                submode = 1;
+            }
+            if ($(this).attr('id') == 'mode3') {
+                submode = 2;
+            }
+        }
+    });
 });
 </script>
 {% endblock %}

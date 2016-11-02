@@ -39,7 +39,7 @@
     canvas {
         width: 100%;
         height: 100%;
-        position: absolute;
+        position: fixed;
         top: 0;
         left: 0;
     }
@@ -64,7 +64,6 @@
     #header p {
         color: #eee;
         font-size: 20px;
-        margin-right: 200px;
         margin-left: 25px;
         display: inline-block;
         margin-top: 0;
@@ -72,9 +71,9 @@
     }
     
     #footer {
-        position: fixed;
+        /*position: fixed;
         bottom: 0;
-        width: 100%;
+        width: 100%;*/
         text-align: center;
         color: white;
         background: rgba(40, 40, 40, 0.6);
@@ -115,7 +114,7 @@
         <p>深度法律顾问</p>
     </div>
     <canvas></canvas>
-    <div style="padding:50px 60px;">
+    <div style="padding:10px 60px 20px 60px;">
         <div id="main">
             {% block body %} {% endblock %}
         </div>
@@ -139,7 +138,7 @@ $(document).ready(function() {
     };
 
     var dots = {
-        nb: 400,
+        nb: 300,
         distance: 50,
         d_radius: 100,
         array: []
@@ -150,7 +149,7 @@ $(document).ready(function() {
     }
 
     function createColorStyle(r, g, b) {
-        return 'rgba(' + r + ',' + g + ',' + b + ', 0.6)';
+        return 'rgba(' + r + ',' + g + ',' + b + ', 0.5)';
     }
 
     function mixComponents(comp1, weight1, comp2, weight2) {
@@ -254,12 +253,14 @@ $(document).ready(function() {
 
         requestAnimationFrame(animateDots);
     }
-    $('body').on('mousemove', 'canvas', function(e) {
+    // $('body').on('mousemove', 'canvas', function(e) {
+    $('html').on('mousemove', 'body', function(e) {
         mousePosition.x = e.pageX;
         mousePosition.y = e.pageY;
     });
 
-    $('body').on('mouseleave', 'canvas', function(e) {
+    // $('body').on('mouseleave', 'canvas', function(e) {
+    $('html').on('mouseleave', 'body', function(e) {
         mousePosition.x = canvas.width / 2;
         mousePosition.y = canvas.height / 2;
     });
