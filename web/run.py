@@ -214,7 +214,8 @@ def chat():
 							if len(e['definition']) > 140:
 								e['definition'] = e['definition'][:140] + '...'
 							if e['photo'][:4] == 'http':
-								return json.dumps({'post': post, 'submode': 2, 'response': e['title'] + ' ' + e['category'] + '<br/>' + e['definition'] + '<br/><img src="' + e['photo'] + '">'})
+								# return json.dumps({'post': post, 'submode': 2, 'response': e['title'] + ' ' + e['category'] + '<br/>' + e['definition'] + '<br/><img src="' + e['photo'] + '">'})
+								return json.dumps({'post': post, 'submode': 2, 'response': e['title'] + ' ' + e['category'] + '<br/>' + e['definition']})
 							else:
 								return json.dumps({'post': post, 'submode': 2, 'response': e['title'] + ' ' + e['category'] + '<br/>' + e['definition']})
 
