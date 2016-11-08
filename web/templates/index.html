@@ -50,16 +50,19 @@
 }
 
 #history {
-    height: 550px;
+    height: 410px;
     overflow-y: scroll;
 }
 
 #mode {
-    height: 330px;
+    /*height: 330px;*/
+    padding-top: 15px;
+    padding-bottom: 15px;
 }
 
 #feedback {
-    height: 200px;
+    /*height: 200px;*/
+    padding-bottom: 15px;
     position: relative;
 }
 
@@ -190,6 +193,49 @@
     color: rgba(230, 157, 135, 1);
 }
 
+#role .subrole {
+    color: #666;
+    padding: 10px 20px;
+    margin: 0 10px;
+    border-bottom: 1px solid #666;
+    transition: color .5s;
+    -o-transition: color .5s;
+    -ms-transition: color .5s;
+    -moz-transition: color .5s;
+    -webkit-transition: color .5s;
+}
+
+#role .subrole:last-child {
+    border-bottom: none;
+}
+
+#role #role1:hover {
+    cursor: pointer;
+    color: rgba(84, 148, 191, 1);
+}
+
+#role #role1.active {
+    color: rgba(84, 148, 191, 1);
+}
+
+#role #role2:hover {
+    cursor: pointer;
+    color: rgba(243, 230, 162, 1);
+}
+
+#role #role2.active {
+    color: rgba(243, 230, 162, 1);
+}
+
+#role #role3:hover {
+    cursor: pointer;
+    color: rgba(230, 157, 135, 1);
+}
+
+#role #role3.active {
+    color: rgba(230, 157, 135, 1);
+}
+
 #history .response {
     margin-top: 4px;
     margin-bottom: 4px;
@@ -218,11 +264,41 @@
     bottom: 30px;
     display: none;
 }
+
+#info {
+    height: 120px;
+}
+
+#info div {
+    width: 70%;
+    margin: 2px auto;
+    color: #eee;
+    border: 1px solid rgba(240, 240, 240, 0.9);
+    background-color: transparent;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 12px;
+    transition: color, background-color .3s;
+    -o-transition: color, background-color .3s;
+    -ms-transition: color, background-color .3s;
+    -moz-transition: color, background-color .3s;
+    -webkit-transition: color, background-color .3s;
+}
+
+#info div:hover {
+    cursor: pointer;
+    background-color: rgba(240, 240, 240, 0.9);
+    color: #222;
+}
 </style>
 {% endblock %} {% block body %}
 <div class="row">
     <div class="col-md-3 col-lg-3">
         <div id="history" class="box">
+        </div>
+        <div id="info" class="box">
+            <div style="margin-bottom:6px;">法院档案</div>
+            <div>律师智库</div>
         </div>
     </div>
     <div class="col-md-6 col-lg-6">
@@ -238,9 +314,13 @@
         </div>
     </div>
     <div class="col-md-3 col-lg-3">
+        <div id="role" class="box">
+            <div class="subrole active" id="role1">我是公众</div>
+            <div class="subrole" id="role2">我是法院</div>
+            <div class="subrole" id="role3">我是律师</div>
+        </div>
         <div id="mode" class="box">
-            <h5 style="margin-top:16px;margin-bottom:40px;">聊天模式选择</h5>
-            <div style="margin-bottom:40px;">
+            <div style="margin-bottom:20px;margin-top:10px;">
                 <button id="auto" class="active">自动检测</button>
                 <button id="manual">手动指定</button>
             </div>
@@ -251,7 +331,6 @@
             </div>
         </div>
         <div id="feedback" class="box">
-            <h5 style="margin-top:16px;margin-bottom:27px;">请为当前回复提供反馈</h5>
             <form class="ac-custom ac-radio ac-circle" autocomplete="off">
                 <ul>
                     <li>
@@ -280,6 +359,7 @@ $(document).ready(function() {
     var current_response = '';
     var chatting = false;
     var ranked = true;
+    var role = 0;
 
     $('#feedback input').click(function(event) {
         if (!ranked) {
@@ -523,6 +603,20 @@ $(document).ready(function() {
             if ($(this).attr('id') == 'mode3') {
                 submode = 2;
             }
+        }
+    });
+
+    $('#role .subrole').click(function(event) {
+        $('#role .subrole').removeClass('active');
+        $(this).addClass('active');
+        if ($(this).attr('id') == 'role1') {
+            subrole = 0;
+        }
+        if ($(this).attr('id') == 'role2') {
+            subrole = 1;
+        }
+        if ($(this).attr('id') == 'role3') {
+            subrole = 2;
         }
     });
 });
