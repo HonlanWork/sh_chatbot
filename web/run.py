@@ -211,6 +211,8 @@ def chat():
 					for e in entries:
 						if e['title'].find(word) >= 0:
 							closedb(db, cursor)
+							if len(e['definition']) > 140:
+								e['definition'] = e['definition'][:140] + '...'
 							if e['photo'][:4] == 'http':
 								return json.dumps({'post': post, 'submode': 2, 'response': e['title'] + ' ' + e['category'] + '<br/>' + e['definition'] + '<br/><img src="' + e['photo'] + '">'})
 							else:
