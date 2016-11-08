@@ -212,6 +212,12 @@
     text-align: right;
     color: rgba(230, 157, 135, 1);
 }
+#wait {
+    position: absolute;
+    right: 30px;
+    bottom: 30px;
+    display: none;
+}
 </style>
 {% endblock %} {% block body %}
 <div class="row">
@@ -220,8 +226,11 @@
         </div>
     </div>
     <div class="col-md-6 col-lg-6">
-        <div id="bot" class="box" style="padding-bottom:10px;">
+        <div id="bot" class="box" style="padding-bottom:10px;position:relative;">
             <img src="{{url_for('static',filename='img/bot.png')}}" alt="" style="height:280px;margin:5px auto 15px auto;max-width:90%;position:relative;">
+            <div id="wait">
+                <span><span class="fa fa-fw fa-spinner fa-spin"></span><span style="color:#999;margin-left:8px;">让我想想</span></span>
+            </div>
         </div>
         <div id="chat" class="box" style="height:200px;position:relative;">
             <textarea cols="30" rows="7" class="form-control" placeholder="输入聊天内容，按下Enter或点击飞机以发送"></textarea>
@@ -382,6 +391,8 @@ $(document).ready(function() {
     }
 
     function chat() {
+        $('#wait').fadeIn(200);     
+
         $.ajax({
             url: "{{url_for('chat')}}",
             type: 'POST',
@@ -393,6 +404,8 @@ $(document).ready(function() {
         })
         .done(function(data) {
             ranked = false;
+
+            $('#wait').fadeOut(200);
 
             // var tmp = Math.random();
             // if (tmp < 0.25) {

@@ -52,7 +52,12 @@ def compare(li, post, key=''):
 				total += 1
 				if post[i] == tmp[j]:
 					same += 1
-		dist.append([same / total, item])
+		if len(post) > len(tmp):
+			r = float(len(tmp)) / float(len(post))
+		else:
+			r = float(len(post)) / float(len(tmp))
+
+		dist.append([r * r * same / total, item])
 	dist.sort(key=lambda x:x[0], reverse=True)
 
 	return dist[0][1] 
@@ -132,46 +137,63 @@ def chat():
 				return json.dumps({'post': post, 'submode': item['submode'], 'response': response[int(math.floor(random.random() * len(response)))]})
 
 		# 查询法律
-		cursor.execute("select * from laws")
-		laws = cursor.fetchall()
-		keywords = jieba.analyse.extract_tags(post, topK=3, withWeight=False, allowPOS=())
-		for law in laws:
-			flag = True
-			for k in keywords:
-				if law['content'].find(k) < 0:
-					flag = False
-					break
-			if flag:
-				content = law['content'].replace(' ', '').replace('\t', '').replace('\r', '\n').replace('。', '\n').split('\n')
-				response = []
-				for c in content:
-					c = c.strip()
-					if c == '':
-						continue
-					count = 0
-					for k in keywords:
-						if c.find(k) >= 0:
-							count += 1
-					response.append([c, count, len(c)])
-				response.sort(key=lambda x:x[1], reverse=True)
-				tmp = []
-				for r in response:
-					if r[1] == response[0][1]:
-						tmp.append(r)
-					else:
+		cursor.execute("select * from keywords")
+		keywords = cursor.fetchall()
+		tmp = {}
+		for k in keywords:
+			tmp[k['keyword']] = k['weight']
+		keywords = tmp
+
+		ps = jieba.cut(post)
+		total = 0.0
+		weight = 0.0
+		for p in ps:
+			if p in [' ', '\t', '\n', '。', '，', '(', ')', '（', '）', '：', '□', '？', '！', '《', '》', '、', '；', '“', '”', '……']:
+				continue
+			total += 1
+			if keywords.has_key(p):
+				weight += keywords[p]
+
+		if weight > 0.05:
+			cursor.execute("select * from laws")
+			laws = cursor.fetchall()
+			keywords = jieba.analyse.extract_tags(post, topK=3, withWeight=False, allowPOS=())
+			for law in laws:
+				flag = True
+				for k in keywords:
+					if law['content'].find(k) < 0:
+						flag = False
 						break
-				response = tmp
-				closedb(db, cursor)
+				if flag:
+					content = law['content'].replace(' ', '').replace('\t', '').replace('\r', '\n').replace('。', '\n').split('\n')
+					response = []
+					for c in content:
+						c = c.strip()
+						if c == '':
+							continue
+						count = 0
+						for k in keywords:
+							if c.find(k) >= 0:
+								count += 1
+						response.append([c, count, len(c)])
+					response.sort(key=lambda x:x[1], reverse=True)
+					tmp = []
+					for r in response:
+						if r[1] == response[0][1]:
+							tmp.append(r)
+						else:
+							break
+					response = tmp
 
-				response = compare(response, post)
+					response = compare(response, post)
 
-				tmp = len(response) / len(post)
+					tmp = len(response[0]) / len(post)
 
-				if tmp > 5:
-					continue
-
-				else:
-					return json.dumps({'post': post, 'submode': 2, 'response': response[0]})
+					if tmp > 3:
+						continue
+					else:
+						closedb(db, cursor)
+						return json.dumps({'post': post, 'submode': 2, 'response': response[0]})
 
 		# 查询百科
 		cursor.execute("select * from entries")
@@ -217,10 +239,13 @@ def chat():
 			else:
 				submode = 1
 
-			return json.dumps({'post': post, 'submode': submode, 'response': response['response'].replace(' ', '')})
-		else:
-			ans = ['真棒', '真不错', '好像很厉害的样子', '听起来好有意思', '给你点个赞', '给你打101分，多一分不怕你骄傲', '哦哦', '这样啊', '这……', '好吧', '好滴', '嗯嗯', '呵呵', '嘿嘿', '啊哈～']
-			return json.dumps({'post': post, 'submode': 0, 'response': ans[int(math.floor(random.random() * len(ans)))]})
+			tmp = len(response['response'].replace(' ', '')) / len(post)
+
+			if tmp <= 3:
+				return json.dumps({'post': post, 'submode': submode, 'response': response['response'].replace(' ', '')})
+		
+		ans = ['真棒', '真不错', '好像很厉害的样子', '听起来好有意思', '给你点个赞', '给你打101分，多一分不怕你骄傲', '哦哦', '这样啊', '这……', '好吧', '好滴', '嗯嗯', '呵呵', '嘿嘿', '啊哈～']
+		return json.dumps({'post': post, 'submode': 0, 'response': ans[int(math.floor(random.random() * len(ans)))]})
 
 # 用户反馈
 @app.route('/rank', methods=['POST'])
