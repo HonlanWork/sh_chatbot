@@ -165,7 +165,13 @@ def chat():
 
 				response = compare(response, post)
 
-				return json.dumps({'post': post, 'submode': 2, 'response': response[0]})
+				tmp = len(response) / len(post)
+
+				if tmp > 5:
+					continue
+
+				else:
+					return json.dumps({'post': post, 'submode': 2, 'response': response[0]})
 
 		# 查询百科
 		cursor.execute("select * from entries")
